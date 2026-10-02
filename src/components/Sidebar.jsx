@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShoppingCart, LayoutDashboard, Package, Boxes, Clock, Users, Building2, FileText } from 'lucide-react';
+import { ShoppingCart, LayoutDashboard, Package, Boxes, Clock, Users, Building2, FileText, Printer, Ticket } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export function Sidebar({ currentTab, setTab }) {
@@ -9,12 +9,15 @@ export function Sidebar({ currentTab, setTab }) {
 
   const menuItems = [
     { id: 'pos', label: 'Kasir POS', icon: ShoppingCart, role: 'ALL' },
+    { id: 'transactions', label: 'Riwayat Transaksi', icon: FileText, role: 'ALL' },
     { id: 'dashboard', label: 'Laporan & Omset', icon: LayoutDashboard, role: 'MANAGER_UP' },
     { id: 'products', label: 'Produk & Harga', icon: Package, role: 'MANAGER_UP' },
     { id: 'inventory', label: 'Stok & Gudang', icon: Boxes, role: 'MANAGER_UP' },
+    { id: 'promotions', label: 'Promo & Voucher', icon: Ticket, role: 'MANAGER_UP' },
     { id: 'shifts', label: 'Riwayat Shift', icon: Clock, role: 'ALL' },
     { id: 'customers', label: 'Data Pelanggan', icon: Users, role: 'ALL' },
     { id: 'outlets-users', label: 'Cabang & Staf', icon: Building2, role: 'MANAGER_UP' },
+    { id: 'settings', label: 'Pengaturan Struk', icon: Printer, role: 'MANAGER_UP' },
   ];
 
   const filteredItems = menuItems.filter(item => {

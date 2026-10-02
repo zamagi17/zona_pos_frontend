@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useShift } from '../context/ShiftContext';
 import { api } from '../services/api';
-import { Store, LogOut, User as UserIcon, Clock, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Store, LogOut, User as UserIcon, Clock, CheckCircle2, AlertCircle, ArrowUpDown } from 'lucide-react';
 
-export function Navbar({ onOpenShift, onCloseShift }) {
+export function Navbar({ onOpenShift, onCloseShift, onOpenCashMovement }) {
   const { user, logout, selectedOutletId, switchOutlet } = useAuth();
   const { activeShift } = useShift();
   const [outlets, setOutlets] = useState([]);
@@ -88,16 +88,50 @@ export function Navbar({ onOpenShift, onCloseShift }) {
       {/* Center Shift Status Button */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
         {activeShift ? (
-          <button
-            onClick={onCloseShift}
-            className="btn badge-emerald"
-            style={{ padding: '6px 14px', fontSize: '0.82rem', cursor: 'pointer' }}
-            title="Klik untuk Tutup Shift"
-          >
-            <Clock size={15} />
-            <span>Shift Buka (Modal: Rp {activeShift.startCash?.toLocaleString('id-ID')})</span>
-            <span style={{ fontSize: '0.75rem', opacity: 0.8, marginLeft: '4px' }}>• Tutup Shift</span>
-          </button>
+          <>
+            <button
+              onClick={onCloseShift}
+              className="btn badge-emerald"
+              style={{ padding: '6px 14px', fontSize: '0.82rem', cursor: 'pointer' }}
+              title="Klik untuk Tutup Shift"
+            >
+              <Clock size={15} />
+              <span>Shift Buka (Modal: Rp {activeShift.startCash?.toLocaleString('id-ID')})</span>
+              <span style={{ fontSize: '0.75rem', opacity: 0.8, marginLeft: '4px' }}>• Tutup Shift</span>
+            </button>
+
+            <button
+              onClick={onOpenCashMovement}
+              className="btn btn-outline"
+              style={{
+                padding: '6px 12px',
+                fontSize: '0.82rem',
+                cursor: 'pointer',
+                borderColor: 'rgba(99, 102, 241, 0.4)',
+                background: 'rgba(99, 102, 241, 0.12)',
+                color: '#a5b4fc',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+              title="Catat Kas Masuk / Kas Keluar (Petty Cash)"
+            >
+              <ArrowUpDown size={15} color="#818cf8" />
+              <span>Kas Masuk/Keluar</span>
+              {((activeShift.totalCashIn || 0) > 0 || (activeShift.totalCashOut || 0) > 0) && (
+                <span style={{
+                  background: '#4f46e5',
+                  color: '#fff',
+                  borderRadius: '10px',
+                  padding: '1px 6px',
+                  fontSize: '0.7rem',
+                  fontWeight: 700
+                }}>
+                  {(activeShift.cashMovements?.length || 0)}
+                </span>
+              )}
+            </button>
+          </>
         ) : (
           <button
             onClick={onOpenShift}

@@ -77,11 +77,14 @@ export const api = {
   transferStock: (data) => request('/stocks/transfer', { method: 'POST', body: JSON.stringify(data) }),
   getStockHistory: (stockId) => request(`/stocks/history/${stockId}`),
 
-  // Shifts
+  // Shifts & Cash Movements (Petty Cash)
   openShift: (data) => request('/shifts/open', { method: 'POST', body: JSON.stringify(data) }),
   closeShift: (id, data) => request(`/shifts/${id}/close`, { method: 'POST', body: JSON.stringify(data) }),
   getActiveShift: () => request('/shifts/active'),
   getShiftsByOutlet: (outletId) => request(`/shifts/outlet/${outletId}`),
+  createCashMovement: (data) => request('/shifts/movements', { method: 'POST', body: JSON.stringify(data) }),
+  getCashMovements: (shiftId) => request(`/shifts/${shiftId}/movements`),
+  getActiveShiftMovements: () => request('/shifts/active/movements'),
 
   // Transactions
   holdOrder: (data) => request('/transactions/hold', { method: 'POST', body: JSON.stringify(data) }),
@@ -94,6 +97,8 @@ export const api = {
   getCustomers: () => request('/customers'),
   createCustomer: (data) => request('/customers', { method: 'POST', body: JSON.stringify(data) }),
   getCustomerTransactions: (customerId) => request(`/customers/${customerId}/transactions`),
+  getCustomerUnpaidBills: (customerId) => request(`/customers/${customerId}/unpaid-bills`),
+  settleCustomerDebt: (customerId, data) => request(`/customers/${customerId}/settle-debt`, { method: 'POST', body: JSON.stringify(data) }),
 
   // Reports
   getSalesReport: (outletId, startDate, endDate) => {
@@ -109,5 +114,38 @@ export const api = {
     if (startDate) query.push(`startDate=${startDate}`);
     if (endDate) query.push(`endDate=${endDate}`);
     return request(`/reports/gross-profit${query.length ? `?${query.join('&')}` : ''}`);
+  },
+
+  // Promotions & Vouchers (Klaster 3)
+  getActivePromotions: (outletId) => request(`/promotions${outletId ? `?outletId=${outletId}` : ''}`),
+  validatePromotion: (data) => request('/promotions/validate', { method: 'POST', body: JSON.stringify(data) }),
+  getAllPromotions: () => request('/promotions/all'),
+  createPromotion: (data) => request('/promotions', { method: 'POST', body: JSON.stringify(data) }),
+  updatePromotion: (id, data) => request(`/promotions/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deletePromotion: (id) => request(`/promotions/${id}`, { method: 'DELETE' }),
+  togglePromotionStatus: (id) => request(`/promotions/${id}/toggle-status`, { method: 'PATCH' }),
+
+  // Receipt & Store Settings (Klaster 4)
+  getReceiptSetting: (outletId) => request(`/receipt-settings${outletId ? `?outletId=${outletId}` : ''}`),
+  saveReceiptSetting: (data) => request('/receipt-settings', { method: 'POST', body: JSON.stringify(data) }),
+
+  // Suppliers & Purchase Orders (Klaster 6)
+  getSuppliers: (onlyActive) => request(`/suppliers${onlyActive !== undefined ? `?onlyActive=${onlyActive}` : ''}`),
+  getSupplierById: (id) => request(`/suppliers/${id}`),
+  createSupplier: (data) => request('/suppliers', { method: 'POST', body: JSON.stringify(data) }),
+  updateSupplier: (id, data) => request(`/suppliers/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteSupplier: (id) => request(`/suppliers/${id}`, { method: 'DELETE' }),
+  toggleSupplierStatus: (id) => request(`/suppliers/${id}/toggle-status`, { method: 'PATCH' }),
+  getPurchaseHistory: (productId, variantId) => request(`/suppliers/history?productId=${productId}${variantId ? `&variantId=${variantId}` : ''}`),
+  getLastPurchasePrice: (productId, variantId) => request(`/suppliers/last-price?productId=${productId}${variantId ? `&variantId=${variantId}` : ''}`),
+  getAllPurchaseOrders: (params = {}) => {
+    const query = [];
+    if (params.supplierId) query.push(`supplierId=${params.supplierId}`);
+    if (params.storageId) query.push(`storageId=${params.storageId}`);
+    if (params.outletId) query.push(`outletId=${params.outletId}`);
+    if (params.startDate) query.push(`startDate=${params.startDate}`);
+    if (params.endDate) query.push(`endDate=${params.endDate}`);
+    if (params.search) query.push(`search=${encodeURIComponent(params.search)}`);
+    return request(`/suppliers/purchase-orders${query.length ? `?${query.join('&')}` : ''}`);
   },
 };

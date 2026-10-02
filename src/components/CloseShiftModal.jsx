@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useShift } from '../context/ShiftContext';
-import { CheckCircle2, AlertTriangle, X, Calculator } from 'lucide-react';
+import { CheckCircle2, AlertTriangle, X, Calculator, Printer } from 'lucide-react';
 
-export function CloseShiftModal({ isOpen, onClose, onShiftClosed }) {
+export function CloseShiftModal({ isOpen, onClose, onShiftClosed, onPrintXReport }) {
   const { activeShift, closeShift } = useShift();
   const [actualCash, setActualCash] = useState('');
   const [loading, setLoading] = useState(false);
@@ -10,7 +10,11 @@ export function CloseShiftModal({ isOpen, onClose, onShiftClosed }) {
 
   if (!isOpen || !activeShift) return null;
 
-  const expected = activeShift.expectedCash || (activeShift.startCash + (activeShift.totalCashSales || 0));
+  const totalIn = activeShift.totalCashIn || 0;
+  const totalOut = activeShift.totalCashOut || 0;
+  const expected = activeShift.expectedCash != null
+    ? activeShift.expectedCash
+    : (activeShift.startCash + (activeShift.totalCashSales || 0) + totalIn - totalOut);
   const diff = actualCash !== '' ? Number(actualCash) - expected : 0;
 
   const handleSubmit = async (e) => {
@@ -53,6 +57,18 @@ export function CloseShiftModal({ isOpen, onClose, onShiftClosed }) {
             <span style={{ color: 'var(--text-muted)' }}>Penjualan Tunai (Cash):</span>
             <span style={{ fontWeight: 600, color: '#34d399' }}>+ Rp {activeShift.totalCashSales?.toLocaleString('id-ID')}</span>
           </div>
+          {totalIn > 0 && (
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.85rem' }}>
+              <span style={{ color: 'var(--text-muted)' }}>Kas Masuk (Suntik Modal / Lainnya):</span>
+              <span style={{ fontWeight: 600, color: '#34d399' }}>+ Rp {totalIn.toLocaleString('id-ID')}</span>
+            </div>
+          )}
+          {totalOut > 0 && (
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.85rem' }}>
+              <span style={{ color: 'var(--text-muted)' }}>Kas Keluar (Petty Cash / Operasional):</span>
+              <span style={{ fontWeight: 600, color: '#fb7185' }}>- Rp {totalOut.toLocaleString('id-ID')}</span>
+            </div>
+          )}
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.85rem' }}>
             <span style={{ color: 'var(--text-muted)' }}>Penjualan Non-Tunai (QRIS/Debit):</span>
             <span style={{ fontWeight: 600, color: '#818cf8' }}>Rp {activeShift.totalNonCashSales?.toLocaleString('id-ID')}</span>
@@ -113,13 +129,27 @@ export function CloseShiftModal({ isOpen, onClose, onShiftClosed }) {
             </div>
           )}
 
-          <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-            <button type="button" onClick={onClose} className="btn btn-outline">
-              Batal
+          <div style={{ display: 'flex', gap: '10px', justifyContent: 'space-between', alignItems: 'center' }}>
+            <button
+              type="button"
+              onClick={() => onPrintXReport && onPrintXReport(activeShift)}
+              className="btn btn-outline"
+              style={{ fontSize: '0.8rem', padding: '8px 12px', display: 'flex', alignItems: 'center', gap: '6px' }}
+              title="Cetak struk pembacaan sementara shift (X-Report)"
+            >
+              <Printer size={15} />
+              <span>Cetak X-Report</span>
             </button>
-            <button type="submit" disabled={loading || actualCash === ''} className="btn btn-amber">
-              {loading ? 'Menutup...' : 'Tutup Shift Kasir'}
-            </button>
+
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button type="button" onClick={onClose} className="btn btn-outline">
+                Batal
+              </button>
+              <button type="submit" disabled={loading || actualCash === ''} className="btn btn-amber" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Printer size={16} />
+                <span>{loading ? 'Menutup...' : 'Tutup Shift & Cetak Z-Report'}</span>
+              </button>
+            </div>
           </div>
         </form>
       </div>

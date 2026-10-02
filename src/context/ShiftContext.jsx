@@ -48,8 +48,27 @@ export function ShiftProvider({ children }) {
     return res;
   };
 
+  const recordCashMovement = async ({ type, amount, category, notes, shiftId }) => {
+    const res = await api.createCashMovement({
+      type,
+      amount: Number(amount),
+      category,
+      notes,
+      shiftId: shiftId || activeShift?.id
+    });
+    await refreshShift();
+    return res;
+  };
+
   return (
-    <ShiftContext.Provider value={{ activeShift, loadingShift, openShift, closeShift, refreshShift }}>
+    <ShiftContext.Provider value={{
+      activeShift,
+      loadingShift,
+      openShift,
+      closeShift,
+      refreshShift,
+      recordCashMovement
+    }}>
       {children}
     </ShiftContext.Provider>
   );
